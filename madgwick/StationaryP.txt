@@ -1,0 +1,20 @@
+% Detect Robot’s stationary periods
+
+% Compute accelerometer magnitude
+acc_mag = sqrt(accX.*accX + accY.*accY + accZ.*accZ);
+
+% HP filter accelerometer data
+filtCutOff = 0.001;
+[b, a] = butter(1, (2*filtCutOff)/(1/samplePeriod), 'high');
+acc_magFilt = filtfilt(b, a, acc_mag);
+
+% Compute absolute value
+acc_magFilt = abs(acc_magFilt);
+
+% LP filter accelerometer data
+filtCutOff = 5;
+[b, a] = butter(1, (2*filtCutOff)/(1/samplePeriod), 'low');
+acc_magFilt = filtfilt(b, a, acc_magFilt);
+
+% Threshold detection
+stationary = acc_magFilt < 0.05;

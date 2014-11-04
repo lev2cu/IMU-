@@ -1,0 +1,7 @@
+% Compute translational position
+
+% Integrate velocity to yield position
+pos = zeros(size(vel));
+for t = 2:length(pos)
+    pos(t,:) = pos(t-1,:) + vel(t,:) * samplePeriod;    % integrate velocity to yield position
+end

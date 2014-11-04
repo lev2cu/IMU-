@@ -1,0 +1,26 @@
+% Compute translational velocities
+
+acc(:,3) = acc(:,3) - 9.81;
+
+% Integrate acceleration to yield velocity
+vel = zeros(size(acc));
+for t = 2:length(vel)
+    vel(t,:) = vel(t-1,:) + acc(t,:) * samplePeriod;% samplePeriod=0.0039
+    if(stationary(t) == 1)
+        vel(t,:) = [0 0 0];     % force zero velocity when foot stationary
+    end
+end
+
+% Compute integral drift during non-stationary periods
+velDrift = zeros(size(vel));
+stationaryStart = find([0; diff(stationary)] == -1);
+stationaryEnd = find([0; diff(stationary)] == 1);
+for i = 1:numel(stationaryEnd)
+    driftRate = vel(stationaryEnd(i)-1, :) / (stationaryEnd(i) - stationaryStart(i));
+    enum = 1:(stationaryEnd(i) - stationaryStart(i));
+    drift = [enum'*driftRate(1) enum'*driftRate(2) enum'*driftRate(3)];
+    velDrift(stationaryStart(i):stationaryEnd(i)-1, :) = drift;
+end
+
+% Remove integral drift
+vel = vel - velDrift;
